@@ -20,4 +20,8 @@ router.post('/modifyEmail', auth, userService.modifyEmail)
 
 router.post('/modifyPhone', auth, userService.modifyPhone)
 
+router.post('/forgot', userService.forgot)
+
+router.post('/reset', userService.reset)
+
 module.exports = router

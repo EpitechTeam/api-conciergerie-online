@@ -1,5 +1,10 @@
 let User = require('./../../models/User')
 const freelanceService = require('../algolia/freelance')
+const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
+const bcrypt = require('bcryptjs')
+
+
 
 let createUser = async (req, res) => {
     // Create a new user
@@ -8,7 +13,7 @@ let createUser = async (req, res) => {
         await user.save()
         const token = await user.generateAuthToken()
         freelanceService.insertFreelance(req, undefined)
-        res.status(201).send({user, token})
+        res.status(201).send({ user, token })
     } catch (error) {
         res.status(400).send(error)
     }
@@ -17,15 +22,15 @@ let createUser = async (req, res) => {
 let login = async (req, res) => {
     //Login a registered user
     try {
-        const {email, password} = req.body
+        const { email, password } = req.body
         const user = await User.findByCredentials(email, password)
         if (!user) {
-            return res.status(401).send({error: 'Votre email ou mot de passe est erroné.'})
+            return res.status(401).send({ error: 'Votre email ou mot de passe est erroné.' })
         }
         const token = await user.generateAuthToken()
-        res.send({user, token})
+        res.send({ user, token })
     } catch (error) {
-        res.status(400).send({error: "Votre email ou mot de passe est erroné.", info: error})
+        res.status(400).send({ error: "Votre email ou mot de passe est erroné.", info: error })
     }
 
 }
@@ -61,21 +66,21 @@ let logoutall = async (req, res) => {
 
 let modifyEmail = async (req, res) => {
     try {
-        const modified = await User.updateOne({_id: req.body.id}, {$set: {email: req.body.email}})
-        res.status(200).send()
+        const modified = await User.updateOne({ _id: req.body.id }, { $set: { email: req.body.email } })
+        res.status(200).send(modified)
     } catch (error) {
         console.log(error)
-        res.status(403).send({'error': 'Unprocessable entity'})
+        res.status(403).send({ 'error': 'Unprocessable entity' })
     }
 }
 
 let modifyPhone = async (req, res) => {
     try {
-        const modified = await User.updateOne({_id: req.body.id}, {$set: {email: req.body.phone}})
+        const modified = await User.updateOne({ _id: req.body.id }, { $set: { email: req.body.phone } })
         res.status(200).send(modified)
     } catch (error) {
         console.log(error)
-        res.status(403).send({'error': 'Unprocessable entity'})
+        res.status(403).send({ 'error': 'Unprocessable entity' })
     }
 }
 
@@ -84,14 +89,75 @@ let edit = async (req, res) => {
     console.log(req.user._id, obj)
     delete obj._id;
     try {
-        const modified = await User.findOneAndUpdate({_id: req.user._id}, {$set: obj});
+        const modified = await User.findOneAndUpdate({ _id: req.user._id }, { $set: obj });
         res.status(200).send(modified)
     } catch (error) {
         console.log(error)
-        res.status(403).send({'error': 'Unprocessable entity', error})
+        res.status(403).send({ 'error': 'Unprocessable entity', error })
     }
 }
 
+let forgot = async (req, res) => {
+    const email = req.body.email
+    let smtpTransport = nodemailer.createTransport({
+        service: "Gmail",
+        auth: { user: "eip.v3.0@gmail.com", pass: "bonjoureipv3" }
+    });
+    try {
+        const actualUser = await User.findOne({ email: email });
+        if (!actualUser) {
+            res.status(403).send({ 'error': 'no one with that email in db' })
+        }
+        const passwordResetToken = await User.generatePasswordResetToken(email)
+        try {
+            User.updateOne({ email: email }, { $set: { resetPasswordToken: passwordResetToken } }, async () => {
+                let newUser = await User.findOne({ email: email })
+                res.status(200).send({ newUser })
+            })
+        } catch (err) { console.log("in try ind") }
+        let mailOptions = {
+            to: email,
+            from: "eip.v3.0@gmail.com",
+            subject: "bonjoureipv3",
+            text:
+                "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
+                "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
+                "http://" +
+                req.headers.host +
+                "/reset/" +
+                passwordResetToken +
+                "\n\n" +
+                "If you did not request this, please ignore this email and your password will remain unchanged.\n"
+        };
+
+        smtpTransport.sendMail(mailOptions, function (err, result) {
+            if (!err) {
+                console.log("in forgot SUCESS");
+                res.status(200).send({ sucess: "email send to " + email });
+            } else {
+                console.log("in forgot ERR");
+            }
+        });
+    } catch (error) {
+        console.log(error)
+        res.status(403).send({ 'error': 'Unprocessable entity', error })
+    }
+}
+
+let reset = async (req, res) => {
+    const resetPasswordToken = req.body.resetPasswordToken
+    const password = req.body.password
+    let encodedPassword = await bcrypt.hash(password, 8)
+    try {
+        let decodedToken = jwt.verify(resetPasswordToken, process.env.JWT_KEY)
+        let email = decodedToken.email
+        const actualUser = await User.findOneAndUpdate({ email: email }, { $set: { password: encodedPassword } })
+        res.status(200).send(actualUser)
+    } catch (err) {
+        console.log(err)
+        res.status(403).send({ 'error': 'Unprocessable entity', error })
+    }
+}
 module.exports = {
     edit,
     createUser,
@@ -101,4 +167,6 @@ module.exports = {
     logoutall,
     modifyEmail,
     modifyPhone,
+    forgot,
+    reset,
 }
