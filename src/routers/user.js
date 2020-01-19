@@ -26,4 +26,9 @@ router.post('/createMission', auth, missionService.createMission);
 
 router.post('/getMission', auth, missionService.getMission);
 
+router.post('/forgot', userService.forgot);
+
+router.post('/reset', userService.reset);
+
 module.exports = router;
+

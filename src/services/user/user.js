@@ -1,10 +1,14 @@
 let User = require('./../../models/User')
-const freelanceService = require('../algolia/freelance');
 const ownerService = require('../algolia/owner')
+const freelanceService = require('../algolia/freelance')
+const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
+const bcrypt = require('bcryptjs')
+
 
 let createUser = async (req, res) => {
     try {
-        const user = new User({payed : {status: false},...req.body});
+        const user = new User({payed: {status: false}, ...req.body});
         await user.save();
         const token = await user.generateAuthToken();
         if (req.body.type === "freelance")
@@ -33,7 +37,7 @@ let login = async (req, res) => {
 
 let getUser = async (req, res) => {
     try {
-        console.log("show: ",req.params);
+        console.log("show: ", req.params);
         const user = await User.findOne({_id: req.params._id});
         if (!user) {
             throw new Error()
@@ -77,7 +81,7 @@ let logoutall = async (req, res) => {
 let modifyEmail = async (req, res) => {
     try {
         const modified = await User.updateOne({_id: req.body.id}, {$set: {email: req.body.email}})
-        res.status(200).send()
+        res.status(200).send(modified)
     } catch (error) {
         console.log(error);
         res.status(403).send({'error': 'Unprocessable entity'})
@@ -101,9 +105,9 @@ let edit = async (req, res) => {
     try {
         const modified = await User.findOneAndUpdate({_id: req.user._id}, {$set: obj});
         if (req.body.type === "freelance")
-            freelanceService.insertFreelance({body:{ ...req.user, ...obj}}, undefined);
+            freelanceService.insertFreelance({body: {...req.user, ...obj}}, undefined);
         else
-            ownerService.insertOwner({body:{ ...req.user, ...obj}}, undefined);
+            ownerService.insertOwner({body: {...req.user, ...obj}}, undefined);
         res.status(200).send(modified)
     } catch (error) {
         console.log(error);
@@ -111,14 +115,81 @@ let edit = async (req, res) => {
     }
 }
 
-module.exports = {
-    getUser,
-    edit,
-    createUser,
-    login,
-    me,
-    logout,
-    logoutall,
-    modifyEmail,
-    modifyPhone,
+let forgot = async (req, res) => {
+    const email = req.body.email
+    let smtpTransport = nodemailer.createTransport({
+        service: "Gmail",
+        auth: {user: "eip.v3.0@gmail.com", pass: "bonjoureipv3"}
+    });
+    try {
+        const actualUser = await User.findOne({email: email});
+        if (!actualUser) {
+            res.status(403).send({'error': 'no one with that email in db'})
+        }
+        const passwordResetToken = await User.generatePasswordResetToken(email)
+        try {
+            User.updateOne({email: email}, {$set: {resetPasswordToken: passwordResetToken}}, async () => {
+                let newUser = await User.findOne({email: email})
+                res.status(200).send({newUser})
+            })
+        } catch (err) {
+            console.log("in try ind")
+        }
+        let mailOptions = {
+            to: email,
+            from: "eip.v3.0@gmail.com",
+            subject: "bonjoureipv3",
+            text:
+                "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
+                "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
+                "http://" +
+                req.headers.host +
+                "/reset/" +
+                passwordResetToken +
+                "\n\n" +
+                "If you did not request this, please ignore this email and your password will remain unchanged.\n"
+        };
+
+        smtpTransport.sendMail(mailOptions, function (err, result) {
+            if (!err) {
+                console.log("in forgot SUCESS");
+                res.status(200).send({sucess: "email send to " + email});
+            } else {
+                console.log("in forgot ERR");
+            }
+        });
+    } catch (error) {
+        console.log(error)
+        res.status(403).send({'error': 'Unprocessable entity', error})
+    }
+}
+
+let reset = async (req, res) => {
+    const resetPasswordToken = req.body.resetPasswordToken
+    const password = req.body.password
+    let encodedPassword = await bcrypt.hash(password, 8)
+    try {
+        let decodedToken = jwt.verify(resetPasswordToken, process.env.JWT_KEY)
+        let email = decodedToken.email
+        const actualUser = await User.findOneAndUpdate({email: email}, {$set: {password: encodedPassword}})
+        res.status(200).send(actualUser)
+    } catch (err) {
+        console.log(err)
+        res.status(403).send({'error': 'Unprocessable entity', error})
+    }
 };
+
+module.exports = {
+        forgot,
+        reset,
+        getUser,
+        edit,
+        createUser,
+        login,
+        me,
+        logout,
+        logoutall,
+        modifyEmail,
+        modifyPhone
+};
+

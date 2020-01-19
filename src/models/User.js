@@ -18,9 +18,9 @@ const exemple = {
     "siret": "345678908076546",
     "skills": ["Accueil", "Animation", "Piscine", "Courses", "Jardinage"],
     "missions": [
-        {"label": "Déplacement", "description": "Déplacement sur lieux de propriétés dans toute la France métropole"},
-        {"label": "Compétences", "description": "Recherche des missions en gîtes"},
-        {"label": "Durée de mission", "description": "Recherche des missions ~3-6 mois"}
+        { "label": "Déplacement", "description": "Déplacement sur lieux de propriétés dans toute la France métropole" },
+        { "label": "Compétences", "description": "Recherche des missions en gîtes" },
+        { "label": "Durée de mission", "description": "Recherche des missions ~3-6 mois" }
     ],
     "bio": "Expérience dans l'hôtellrie ainsi que la gestion de multiple propriétés, c'est ma passion !"
 }
@@ -90,9 +90,14 @@ const userSchema = mongoose.Schema({
         lowercase: true,
         validate: value => {
             if (!validator.isEmail(value)) {
-                throw new Error({error: 'Invalid Email address'})
+                throw new Error({ error: 'Invalid Email address' })
             }
         }
+    },
+    resetPasswordToken: {
+        type: String,
+        required: true,
+        default: "fakeToken"
     },
     password: {
         type: String,
@@ -103,8 +108,8 @@ const userSchema = mongoose.Schema({
         token: {
             type: String,
             required: true
-        }
-    }]
+        },
+    }],
 })
 
 userSchema.pre('save', async function (next) {
@@ -119,21 +124,30 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.generateAuthToken = async function () {
     // Generate an auth token for the user
     const user = this
-    const token = jwt.sign({_id: user._id}, process.env.JWT_KEY)
-    user.tokens = user.tokens.concat({token})
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_KEY)
+    user.tokens = user.tokens.concat({ token })
     await user.save()
+    return token
+}
+
+userSchema.statics.generatePasswordResetToken = async function (email) {
+    // Generate an auth token for the user
+    const user = this
+    const token = jwt.sign({ email: email }, process.env.JWT_KEY)
+    //user.tokens = user.tokens.concat({ resetPasswordtoken })
+    //await user.save()
     return token
 }
 
 userSchema.statics.findByCredentials = async (email, password) => {
     // Search for a user by email and password.
-    const user = await User.findOne({email})
+    const user = await User.findOne({ email })
     if (!user) {
-        throw new Error({error: 'Invalid login credentials'})
+        throw new Error({ error: 'Invalid login credentials' })
     }
     const isPasswordMatch = await bcrypt.compare(password, user.password)
     if (!isPasswordMatch) {
-        throw new Error({error: 'Invalid login credentials'})
+        throw new Error({ error: 'Invalid login credentials' })
     }
     return user
 }
