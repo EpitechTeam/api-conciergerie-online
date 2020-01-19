@@ -5,7 +5,8 @@ const index = client.initIndex('freelancer');
 // ObjectID field required
 const insertFreelance =  async (req, res) => {
     const freelance = req.body;
-    freelance.objectID = Math.floor(Math.random() * 999999999) + 1;
+    freelance.objectID = req.body._id;
+    freelance.url = "user/"+req.body._id;
     index
         .saveObjects([freelance])
         .then((object) => {

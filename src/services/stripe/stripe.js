@@ -1,4 +1,5 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+let User = require('./../../models/User')
 
 let publicKey = (req, res) => {
     res.send({publicKey: process.env.STRIPE_PUBLISHABLE_KEY});
@@ -58,8 +59,21 @@ let webHook = async (req, res) => {
         res.sendStatus(200);
     }
 };
+let payed = async (req, res) => {
+    let obj = Object.create(req.body);
+    console.log(req.user._id, obj)
+    delete obj._id;
+    try {
+        const modified = await User.findOneAndUpdate({_id: req.user._id}, {$set: obj});
+        res.status(200).send(modified)
+    } catch (error) {
+        console.log(error)
+        res.status(403).send({'error': 'Unprocessable entity', error})
+    }
+}
 
 module.exports = {
+    payed,
     publicKey,
     paymentIntents,
     webHook

@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 
 const exemple = {
     "email": "test@test.test",
+    "payed": false,
     "password": "test",
     "firstname": "castor",
     "lastname": "dev",
@@ -26,6 +27,10 @@ const exemple = {
 
 
 const userSchema = mongoose.Schema({
+    payed: {
+        type: Object,
+        trim: true
+    },
     type: {
         required: true,
         type: String,
