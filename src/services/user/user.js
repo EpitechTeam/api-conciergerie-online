@@ -98,6 +98,18 @@ let modifyPhone = async (req, res) => {
     }
 }
 
+let modifyPassword = async (req, res) => {
+    try {
+        let encodedPassword = await bcrypt.hash(req.body.password, 8)
+        const modified = await User.updateOne({ _id: req.body.id }, { $set: { password: encodedPassword } })
+        res.status(200).send(modified)
+    }
+    catch (error) {
+        console.log(error)
+        res.status(403).send({ 'error': 'Unprocessable entity' })
+    }
+}
+
 let edit = async (req, res) => {
     let obj = Object.create(req.body);
     console.log(req.user._id, obj);
@@ -138,7 +150,7 @@ let forgot = async (req, res) => {
                         "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
                         "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
                         "http://" +
-                        req.headers.host +
+                        process.env.CONCIERGERIE +
                         "/reset/" +
                         passwordResetToken +
                         "\n\n" +
@@ -172,15 +184,15 @@ let forgot = async (req, res) => {
 let reset = async (req, res) => {
     const resetPasswordToken = req.body.resetPasswordToken
     const password = req.body.password
-    let encodedPassword = await bcrypt.hash(password, 8)
     try {
+        let encodedPassword = await bcrypt.hash(password, 8)
         let decodedToken = jwt.verify(resetPasswordToken, process.env.JWT_KEY)
         let email = decodedToken.email
         const actualUser = await User.findOneAndUpdate({ email: email }, { $set: { password: encodedPassword } })
         res.status(200).send(actualUser)
     } catch (err) {
         console.log(err)
-        res.status(403).send({ 'error': 'Unprocessable entity', error })
+        res.status(403).send({ 'error': 'Unprocessable entity', err })
     }
 };
 
@@ -195,6 +207,7 @@ module.exports = {
     logout,
     logoutall,
     modifyEmail,
-    modifyPhone
+    modifyPhone,
+    modifyPassword,
 };
 
