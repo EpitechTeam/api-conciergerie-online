@@ -101,7 +101,7 @@ let modifyPhone = async (req, res) => {
 let modifyPassword = async (req, res) => {
     try {
         let encodedPassword = await bcrypt.hash(req.body.password, 8)
-        const modified = await User.updateOne({ _id: req.body.id }, { $set: { password: encodedPassword } })
+        const modified = await User.updateOne({ "tokens.token": req.token }, { $set: { password: encodedPassword } })
         res.status(200).send(modified)
     }
     catch (error) {
@@ -188,7 +188,8 @@ let reset = async (req, res) => {
         let decodedToken = jwt.verify(resetPasswordToken, process.env.JWT_KEY)
         let email = decodedToken.email
         const actualUser = await User.findOneAndUpdate({ email: email }, { $set: { password: encodedPassword } })
-        res.status(200).send(actualUser)
+        if (actualUser) { res.status(200).send(actualUser) }
+        else { console.log(actualUser) }
     } catch (err) {
         console.log(err)
         res.status(403).send({ 'error': 'Unprocessable entity', err })
