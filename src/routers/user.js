@@ -30,5 +30,6 @@ router.post('/forgot', userService.forgot);
 
 router.post('/reset', userService.reset);
 
+router.post('/modifyPassword', auth, userService.modifyPassword);
 module.exports = router;
 

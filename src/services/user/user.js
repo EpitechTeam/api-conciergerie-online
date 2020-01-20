@@ -206,6 +206,7 @@ module.exports = {
     logout,
     logoutall,
     modifyEmail,
-    modifyPhone
+    modifyPhone,
+    modifyPassword,
 };
 
