@@ -117,6 +117,7 @@ let edit = async (req, res) => {
 
 let forgot = async (req, res) => {
     const email = req.body.email
+    console.log(email)
     try {
         const actualUser = await User.findOne({ email: email });
         if (!actualUser) {
