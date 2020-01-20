@@ -98,6 +98,18 @@ let modifyPhone = async (req, res) => {
     }
 }
 
+let modifyPassword = async (req, res) => {
+    try {
+        let encodedPassword = await bcrypt.hash(req.body.password, 8)
+        const modified = await User.updateOne({ _id: req.body.id }, { $set: { password: encodedPassword } })
+        res.status(200).send(modified)
+    }
+    catch (error) {
+        console.log(error)
+        res.status(403).send({ 'error': 'Unprocessable entity' })
+    }
+}
+
 let edit = async (req, res) => {
     let obj = Object.create(req.body);
     console.log(req.user._id, obj);
