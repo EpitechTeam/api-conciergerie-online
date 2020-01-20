@@ -22,7 +22,7 @@ router.post('/modifyPhone', auth, userService.modifyPhone);
 
 router.get('/user/:_id', userService.getUser);
 
-router.post('/createMission', auth, missionService.createMission);
+router.post('/createmission', auth, missionService.createMission);
 
 router.post('/getMission', auth, missionService.getMission);
 
