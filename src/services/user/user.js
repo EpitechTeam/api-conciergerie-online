@@ -183,15 +183,15 @@ let forgot = async (req, res) => {
 let reset = async (req, res) => {
     const resetPasswordToken = req.body.resetPasswordToken
     const password = req.body.password
-    let encodedPassword = await bcrypt.hash(password, 8)
     try {
+        let encodedPassword = await bcrypt.hash(password, 8)
         let decodedToken = jwt.verify(resetPasswordToken, process.env.JWT_KEY)
         let email = decodedToken.email
         const actualUser = await User.findOneAndUpdate({ email: email }, { $set: { password: encodedPassword } })
         res.status(200).send(actualUser)
     } catch (err) {
         console.log(err)
-        res.status(403).send({ 'error': 'Unprocessable entity', error })
+        res.status(403).send({ 'error': 'Unprocessable entity', err })
     }
 };
 
