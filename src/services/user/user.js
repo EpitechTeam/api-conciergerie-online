@@ -118,24 +118,7 @@ let edit = async (req, res) => {
 let forgot = async (req, res) => {
     const email = req.body.email
     const passwordResetToken = await User.generatePasswordResetToken(email)
-    var smtpTransport = nodemailer.createTransport({
-        service: "Gmail",
-        auth: { user: "eip.v3.0@gmail.com", pass: "bonjoureipv3" }
-    });
-    var mailOptions = {
-        to: email,
-        from: "eip.v3.0@gmail.com",
-        subject: "bonjoureipv3",
-        text:
-            "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
-            "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
-            "http://" +
-            req.headers.host +
-            "/reset/" +
-            passwordResetToken +
-            "\n\n" +
-            "If you did not request this, please ignore this email and your password will remain unchanged.\n"
-    };
+
     try {
         const actualUser = await User.findOne({ email: email });
         if (!actualUser) {
@@ -143,6 +126,24 @@ let forgot = async (req, res) => {
         }
         else {
             try {
+                var smtpTransport = nodemailer.createTransport({
+                    service: "Gmail",
+                    auth: { user: "eip.v3.0@gmail.com", pass: "bonjoureipv3" }
+                });
+                var mailOptions = {
+                    to: email,
+                    from: "eip.v3.0@gmail.com",
+                    subject: "bonjoureipv3",
+                    text:
+                        "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
+                        "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
+                        "http://" +
+                        req.headers.host +
+                        "/reset/" +
+                        passwordResetToken +
+                        "\n\n" +
+                        "If you did not request this, please ignore this email and your password will remain unchanged.\n"
+                };
                 User.updateOne({ email: email }, { $set: { resetPasswordToken: passwordResetToken } }, async () => {
                     let newUser = await User.findOne({ email: email })
                     if (newUser) {
