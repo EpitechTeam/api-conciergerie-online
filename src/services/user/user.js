@@ -118,11 +118,11 @@ let edit = async (req, res) => {
 let forgot = async (req, res) => {
     const email = req.body.email
     const passwordResetToken = await User.generatePasswordResetToken(email)
-    let smtpTransport = nodemailer.createTransport({
+    var smtpTransport = nodemailer.createTransport({
         service: "Gmail",
         auth: { user: "eip.v3.0@gmail.com", pass: "bonjoureipv3" }
     });
-    let mailOptions = {
+    var mailOptions = {
         to: email,
         from: "eip.v3.0@gmail.com",
         subject: "bonjoureipv3",
