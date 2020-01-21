@@ -1,7 +1,5 @@
 const mongoose = require('mongoose')
-const validator = require('validator')
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
+
 
 const exemple = {
     "user_id": "5e23511fb2752b262a2f7082",

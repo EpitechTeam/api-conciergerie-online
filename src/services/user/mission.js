@@ -17,6 +17,7 @@ let createMission = async (req, res) => {
 let getMission = async (req, res) => {
     const token = req.header('Authorization').replace('Bearer ', '');
     const data = jwt.verify(token, process.env.JWT_KEY);
+    console.log("data=>",data);
     try {
         const mission = await Mission.find({ user_id: data._id});
         if (!mission) {

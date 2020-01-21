@@ -3,6 +3,7 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 const userService = require('../services/user/user');
 const missionService = require('../services/user/mission');
+const statsService = require('../services/user/stats');
 
 router.post('/register', userService.createUser);
 
@@ -22,9 +23,11 @@ router.post('/modifyPhone', auth, userService.modifyPhone);
 
 router.get('/user/:_id', userService.getUser);
 
-router.post('/createMission', auth, missionService.createMission);
+router.post('/createmission', auth, missionService.createMission);
 
-router.post('/getMission', auth, missionService.getMission);
+router.post('/getmission', auth, missionService.getMission);
+
+router.post('/getstats', auth, statsService.getStats);
 
 router.post('/forgot', userService.forgot);
 
