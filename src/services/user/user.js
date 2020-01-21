@@ -116,7 +116,7 @@ let edit = async (req, res) => {
     delete obj._id;
     try {
         const modified = await User.findOneAndUpdate({ _id: req.user._id }, { $set: obj });
-        if (req.body.type === "freelance")
+        if (req.user.type === "freelance")
             freelanceService.insertFreelance({ body: { ...req.user, ...obj } }, undefined);
         else
             ownerService.insertOwner({ body: { ...req.user, ...obj } }, undefined);

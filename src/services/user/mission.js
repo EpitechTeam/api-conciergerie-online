@@ -7,7 +7,7 @@ let createMission = async (req, res) => {
     try {
         const mission = new Mission(req.body);
         await mission.save();
-        missionService.insertMission(req, undefined);
+        missionService.insertMission({body : mission}, undefined);
         res.status(201).send(mission)
     } catch (error) {
         res.status(400).send(error)
