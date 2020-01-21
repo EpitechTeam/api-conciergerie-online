@@ -8,16 +8,53 @@ const bcrypt = require('bcryptjs')
 
 let createUser = async (req, res) => {
     try {
-        const user = new User({ payed: { status: false }, ...req.body });
+        const user = new User({ payed: { status: false }, emailVerified : false, ...req.body });
         await user.save();
         const token = await user.generateAuthToken();
         if (req.body.type === "freelance")
             freelanceService.insertFreelance({ body: user }, undefined);
         else
             ownerService.insertOwner({ body: user }, undefined)
+        console.log("laaa")
+        var smtpTransport = nodemailer.createTransport({
+            service: "Gmail",
+            auth: { user: "eip.v3.0@gmail.com", pass: "bonjoureipv3" }
+        });
+        var mailOptions = {
+            to: user.email,
+            from: "eip.v3.0@gmail.com",
+            subject: "bonjoureipv3",
+            text:
+                "Please click on the following link, or paste this into your browser to valid your account\n\n" +
+                "http://" +
+                process.env.CONCIERGERIE +
+                "/valid/" +
+                user._id +
+                "\n\n" +
+                "If you did not request this, please ignore this email and your password will remain unchanged.\n"
+        };
+        smtpTransport.sendMail(mailOptions, function (err, result) {
+            if (!err) {
+                console.log("in forgot SUCESS");
+                //res.status(200).send({sucess: "email send to " + email});
+            } else {
+                console.log("in forgot ERR");
+            }
+        });
         res.status(201).send({ user, token })
     } catch (error) {
+        console.log(error)
         res.status(400).send(error)
+    }
+}
+
+let validEmail = async (req, res) => {
+    try {
+        const user = await User.updateOne({ _id: req.body.user_id }, { $set: { emailVerified: true } });
+        res.sendStatus(200)
+    }
+    catch (e) {
+        console.log(e)
     }
 }
 
@@ -210,5 +247,6 @@ module.exports = {
     modifyEmail,
     modifyPhone,
     modifyPassword,
+    validEmail
 };
 
