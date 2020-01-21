@@ -36,6 +36,10 @@ const userSchema = mongoose.Schema({
         type: String,
         trim: true
     },
+    emailVerified : {
+        required : true,
+        type : Boolean
+    },
     caption: {
         type: String,
         trim: true
