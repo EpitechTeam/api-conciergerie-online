@@ -117,7 +117,7 @@ let logoutall = async (req, res) => {
 
 let modifyEmail = async (req, res) => {
     try {
-        const modified = await User.updateOne({ _id: req.body.id }, { $set: { email: req.body.email } })
+        const modified = await User.updateOne({ "tokens.token": req.token }, { $set: { email: req.body.email } })
         res.status(200).send(modified)
     } catch (error) {
         console.log(error);
@@ -127,7 +127,7 @@ let modifyEmail = async (req, res) => {
 
 let modifyPhone = async (req, res) => {
     try {
-        const modified = await User.updateOne({ _id: req.body.id }, { $set: { email: req.body.phone } })
+        const modified = await User.updateOne({ "tokens.token": req.token }, { $set: { email: req.body.phone } })
         res.status(200).send(modified)
     } catch (error) {
         console.log(error)
