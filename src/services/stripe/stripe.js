@@ -72,9 +72,37 @@ let payed = async (req, res) => {
     }
 }
 
+let subscription = async (req, res) => {
+    // Set your secret key: remember to change this to your live secret key in production
+    // See your keys here: https://dashboard.stripe.com/account/apikeys
+    const stripe = require('stripe')(process.env.STRIPE_PUBLISHABLE_KEY);
+
+    // This creates a new Customer and attaches the PaymentMethod in one API call.
+    const customer = await stripe.customers.create({
+        payment_method: req.body.payment_method,
+        email: req.body.email,
+        invoice_settings: {
+            default_payment_method: req.body.payment_method,
+        },
+    });
+
+    let customer_id = customer.id
+
+    await User.updateOne({ "tokens.token" : req.token }, { $set : { "stripe.customer_id" : customer_id}})
+
+    await stripe.subscriptions.create({
+        customer: customer_id,
+        items: [{ plan: req.body.plan }],
+        expand: ["latest_invoice.payment_intent"]
+    });
+
+    res.sendStatus(200)
+}
+
 module.exports = {
     payed,
     publicKey,
     paymentIntents,
-    webHook
+    webHook,
+    subscription
 };

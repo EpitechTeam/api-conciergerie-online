@@ -98,6 +98,9 @@ const userSchema = mongoose.Schema({
             }
         }
     },
+    stripe : {
+        type: Object
+    },
     resetPasswordToken: {
         type: String,
         required: true,
