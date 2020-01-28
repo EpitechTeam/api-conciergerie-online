@@ -40,6 +40,9 @@ const userSchema = mongoose.Schema({
         required : true,
         type : Boolean
     },
+    disponible : {
+        type : Boolean
+    },
     caption: {
         type: String,
         trim: true

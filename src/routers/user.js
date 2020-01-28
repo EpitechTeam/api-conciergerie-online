@@ -35,6 +35,10 @@ router.post('/reset', userService.reset);
 
 router.post('/validEmail', userService.validEmail)
 
+router.post('/sendEmailVerification', auth, userService.sendEmailVerification)
+
+router.post('/changeDisponibilite', auth, userService.changeDisponibilite)
+
 router.post('/modifyPassword', auth, userService.modifyPassword);
 
 module.exports = router;
