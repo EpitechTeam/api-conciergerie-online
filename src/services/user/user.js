@@ -31,7 +31,7 @@ let createUser = async (req, res) => {
                 "/valid/" +
                 user._id +
                 "\n\n" +
-                "If you did not request this, please ignore this email and your password will remain unchanged.\n"
+                "If you did not request this, please ignore this email\n"
         };
         smtpTransport.sendMail(mailOptions, function (err, result) {
             if (!err) {
@@ -234,6 +234,43 @@ let reset = async (req, res) => {
     }
 };
 
+let changeDisponibilite = async (req, res) => {
+    await User.updateOne({"tokens.token" : req.token}, { $set: { disponible : !req.body.disponible } })
+    let user = await User.findOne({"tokens.token" : req.token})
+    res.status(200).send(user)
+}
+
+let sendEmailVerification = async (req, res) => {
+    let user = User.findOne({"tokens.token" : req.token})
+
+    var smtpTransport = nodemailer.createTransport({
+        service: "Gmail",
+        auth: { user: "eip.v3.0@gmail.com", pass: "bonjoureipv3" }
+    });
+
+    var mailOptions = {
+        to: user.email,
+        from: "eip.v3.0@gmail.com",
+        subject: "Vérifier votre email",
+        text:
+            "Please click on the following link, or paste this into your browser to valid your account\n\n" +
+            "http://" +
+            process.env.CONCIERGERIE +
+            "/valid/" +
+            user._id +
+            "\n\n" +
+            "If you did not request this, please ignore this email.\n"
+    };
+    smtpTransport.sendMail(mailOptions, function (err, result) {
+        if (!err) {
+            console.log("in forgot SUCESS");
+            //res.status(200).send({sucess: "email send to " + email});
+        } else {
+            console.log("in forgot ERR");
+        }
+    });
+}
+
 module.exports = {
     forgot,
     reset,
@@ -247,6 +284,8 @@ module.exports = {
     modifyEmail,
     modifyPhone,
     modifyPassword,
-    validEmail
+    validEmail,
+    sendEmailVerification,
+    changeDisponibilite
 };
 

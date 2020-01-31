@@ -11,4 +11,6 @@ router.post('/webhook', stripeService.webHook)
 
 router.post('/payed', auth, stripeService.payed)
 
+router.post('/subscribe', auth, stripeService.subscription)
+
 module.exports = router
