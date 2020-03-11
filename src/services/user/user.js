@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs')
 
 let createUser = async (req, res) => {
     try {
-        const user = new User({ payed: { status: false }, emailVerified : false, ...req.body });
+        const user = new User({ payed: { status: false }, emailVerified: false, ...req.body });
         await user.save();
         const token = await user.generateAuthToken();
         if (req.body.type === "freelance")
@@ -35,10 +35,10 @@ let createUser = async (req, res) => {
         };
         smtpTransport.sendMail(mailOptions, function (err, result) {
             if (!err) {
-                console.log("in forgot SUCESS");
+                console.log("in create user SUCESS");
                 //res.status(200).send({sucess: "email send to " + email});
             } else {
-                console.log("in forgot ERR");
+                console.log("in create user ERR");
             }
         });
         res.status(201).send({ user, token })
@@ -235,13 +235,13 @@ let reset = async (req, res) => {
 };
 
 let changeDisponibilite = async (req, res) => {
-    await User.updateOne({"tokens.token" : req.token}, { $set: { disponible : !req.body.disponible } })
-    let user = await User.findOne({"tokens.token" : req.token})
+    await User.updateOne({ "tokens.token": req.token }, { $set: { disponible: !req.body.disponible } })
+    let user = await User.findOne({ "tokens.token": req.token })
     res.status(200).send(user)
 }
 
 let sendEmailVerification = async (req, res) => {
-    let user = User.findOne({"tokens.token" : req.token})
+    let user = User.findOne({ "tokens.token": req.token })
 
     var smtpTransport = nodemailer.createTransport({
         service: "Gmail",
