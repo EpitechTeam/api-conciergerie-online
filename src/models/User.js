@@ -36,12 +36,12 @@ const userSchema = mongoose.Schema({
         type: String,
         trim: true
     },
-    emailVerified : {
-        required : true,
-        type : Boolean
+    emailVerified: {
+        required: true,
+        type: Boolean
     },
-    disponible : {
-        type : Boolean
+    disponible: {
+        type: Boolean
     },
     caption: {
         type: String,
@@ -101,13 +101,13 @@ const userSchema = mongoose.Schema({
             }
         }
     },
-    stripe : {
+    stripe: {
         type: Object
     },
     resetPasswordToken: {
         type: String,
         required: true,
-        default: "fakeToken"
+        default: " "
     },
     password: {
         type: String,
