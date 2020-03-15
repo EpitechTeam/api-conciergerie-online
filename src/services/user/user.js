@@ -86,6 +86,21 @@ let getUser = async (req, res) => {
 };
 
 
+let getUsers = async (req, res) => {
+    try {
+        console.log("show: ", req.params);
+        const user = await User.find({});
+        console.log("getUsers: ", user.length);
+        if (!user) {
+            throw new Error()
+        }
+        res.status(200).send(user);
+    } catch (error) {
+        res.status(400).send({ error: error })
+    }
+};
+
+
 let me = async (req, res) => {
     // View logged in user profile
     res.send(req.user)
@@ -272,6 +287,7 @@ let sendEmailVerification = async (req, res) => {
 }
 
 module.exports = {
+    getUsers,
     forgot,
     reset,
     getUser,

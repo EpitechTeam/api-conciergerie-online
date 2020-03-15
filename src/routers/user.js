@@ -5,6 +5,9 @@ const userService = require('../services/user/user');
 const missionService = require('../services/user/mission');
 const statsService = require('../services/user/stats');
 
+
+router.post('/getusers', userService.getUsers);
+
 router.post('/register', userService.createUser);
 
 router.post('/login', userService.login);
