@@ -8,7 +8,7 @@ const unlessIsOptions = (middleware) => (req, res, next) => req.method === 'OPTI
 router.use(unlessIsOptions(auth));
 router.use(unlessIsOptions(admin));
 
-rest.fromModel('user');
-rest.fromModel('mission');
+rest.fromModel('User');
+rest.fromModel('Mission');
 
 module.exports = router;

@@ -1,7 +1,4 @@
-const models = {
-    mission: require('../../models/Mission'),
-    user: require('../../models/User')
-};
+const models = {};
 
 function modelToRoute(router, method, modelName, route, callback) {
     router[method](`/${modelName}s${route}`, async (req, res) => {
@@ -14,6 +11,11 @@ function modelToRoute(router, method, modelName, route, callback) {
 }
 
 function fromModel(router, modelName) {
+    // Require model
+    const lowercaseModelName = modelName.toLowerCase();
+    models[lowercaseModelName] = require(`../../models/${modelName}`);
+    modelName = lowercaseModelName;
+
     // Get with pagination
     modelToRoute(router, 'get', modelName, '', async (model, req) => {
         let { page=1, results=10, sortField, sortOrder, ...query } = req.query;
@@ -29,6 +31,7 @@ function fromModel(router, modelName) {
         };
     });
 
+    // Rest routes
     modelToRoute(router, 'get', modelName, '/:id', (model, req) => model.findById(req.params.id));
     modelToRoute(router, 'post', modelName, '', (model, req) => model.create(req.body));
     modelToRoute(router, 'put', modelName, '/:id', (model, req) => model.findByIdAndUpdate(req.params.id, req.body));
