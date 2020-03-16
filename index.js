@@ -7,6 +7,7 @@ const freelanceRouter = require('./src/routers/freelance')
 const missionRouter = require('./src/routers/mission')
 const ownerRouter = require('./src/routers/owner')
 const stripeRouter = require('./src/routers/stripe')
+const backofficeRouter = require('./src/routers/backoffice');
 const fileUpload = require('express-fileupload');
 require('dotenv').config();
 require('./src/db/db');
@@ -45,6 +46,7 @@ app.use("/", freelanceRouter);
 app.use("/", missionRouter);
 app.use("/", ownerRouter);
 app.use("/", stripeRouter);
+app.use("/admin", backofficeRouter);
 
 // default options
 app.use(fileUpload());
