@@ -16,11 +16,16 @@ function fromModel(router, modelName) {
     models[lowercaseModelName] = require(`../../models/${modelName}`);
     modelName = lowercaseModelName;
 
-    // Get with pagination
+    // Get with pagination and search
     modelToRoute(router, 'get', modelName, '', async (model, req) => {
-        let { page=1, results=10, sortField, sortOrder, ...query } = req.query;
+        let { page=1, results=10, sortField, sortOrder, search, searchFields, ...query } = req.query;
         page = parseInt(page) - 1;
         results = parseInt(results);
+
+        if (search && search.length) {
+            const or = searchFields.split(',').map(field => ({ [field]: new RegExp(search, 'i') }))
+            query = { $and: [query, {$or: or}] };
+        }
 
         return {
             results: await model.find(query)
