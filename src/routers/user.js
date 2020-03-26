@@ -32,6 +32,8 @@ router.post('/getmission', auth, missionService.getMission);
 
 router.post('/getstats', auth, statsService.getStats);
 
+router.post('/getca', auth, statsService.getCa);
+
 router.post('/forgot', userService.forgot);
 
 router.post('/reset', userService.reset);

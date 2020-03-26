@@ -39,6 +39,27 @@ let getStats = async (req, res) => {
     }
 }
 
+let getCa = async (req, res) => {
+    const token = req.header('Authorization').replace('Bearer ', '');
+    const data = jwt.verify(token, process.env.JWT_KEY);
+    try {
+        const mission = await Mission.find({user_id: data._id});
+        if (!mission) {
+            throw new Error()
+        }
+        let result = getStatsModel(mission);
+        const reducer = (accumulator, currentValue) => accumulator + currentValue;
+        let reponse = result.data.reduce(reducer);
+        console.log("data=>", result);
+        res.status(200).send({
+            ca: reponse
+        })
+    } catch (error) {
+        res.status(401).send({error: error})
+    }
+}
+
 module.exports = {
-    getStats
+    getStats,
+    getCa
 };
