@@ -10,5 +10,7 @@ router.use(unlessIsOptions(admin));
 
 rest.fromModel('User');
 rest.fromModel('Mission');
+rest.fromModel('House');
+rest.fromModel('Payment');
 
 module.exports = router;
