@@ -5,7 +5,7 @@ function modelToRoute(router, method, modelName, route, callback) {
         try {
             res.send(await callback(models[modelName], req));
         } catch (error) {
-            res.send(error.errors, 400);
+            res.send(error.errmsg || error.errors, 400);
         }
     });
 }
