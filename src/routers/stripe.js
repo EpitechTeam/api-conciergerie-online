@@ -10,6 +10,7 @@ router.post('/payment-intents', stripeService.paymentIntents)
 router.post('/webhook', stripeService.webHook)
 
 router.post('/payed', auth, stripeService.payed)
+router.post('/getpayed', auth, stripeService.getPayed)
 
 router.post('/subscribe', auth, stripeService.subscription)
 

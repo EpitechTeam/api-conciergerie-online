@@ -1,5 +1,6 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-let User = require('./../../models/User')
+let User = require('./../../models/User');
+let Payment = require('./../../models/Payment');
 
 let publicKey = (req, res) => {
     res.send({publicKey: process.env.STRIPE_PUBLISHABLE_KEY});
@@ -65,12 +66,33 @@ let payed = async (req, res) => {
     delete obj._id;
     try {
         const modified = await User.findOneAndUpdate({_id: req.user._id}, {$set: obj});
-        res.status(200).send(modified)
+        obj.date = new Date();
+        obj.user_id = req.user._id;
+        obj.detail = req.body.detail
+        const payment = new Payment(obj);
+        await payment.save();
+        console.log("House => ", payment);
+        res.status(201).send(payment)
+
     } catch (error) {
         console.log(error)
         res.status(403).send({'error': 'Unprocessable entity', error})
     }
 }
+
+
+let getPayed = async (req, res) => {
+    try {
+        const payment = await Payment.find({user_id: req.body._id});
+        if (!payment) {
+            throw new Error()
+        }
+        res.status(200).send(payment)
+    } catch (error) {
+        res.status(401).send({error: error})
+    }
+};
+
 
 let subscription = async (req, res) => {
     // Set your secret key: remember to change this to your live secret key in production
@@ -88,11 +110,11 @@ let subscription = async (req, res) => {
 
     let customer_id = customer.id
 
-    await User.updateOne({ "tokens.token" : req.token }, { $set : { "stripe.customer_id" : customer_id}})
+    await User.updateOne({"tokens.token": req.token}, {$set: {"stripe.customer_id": customer_id}})
 
     await stripe.subscriptions.create({
         customer: customer_id,
-        items: [{ plan: req.body.plan }],
+        items: [{plan: req.body.plan}],
         expand: ["latest_invoice.payment_intent"]
     });
 
@@ -100,6 +122,7 @@ let subscription = async (req, res) => {
 }
 
 module.exports = {
+    getPayed,
     payed,
     publicKey,
     paymentIntents,

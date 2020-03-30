@@ -5,6 +5,9 @@ const userService = require('../services/user/user');
 const missionService = require('../services/user/mission');
 const statsService = require('../services/user/stats');
 
+
+router.post('/getusers', userService.getUsers);
+
 router.post('/register', userService.createUser);
 
 router.post('/login', userService.login);
@@ -29,9 +32,13 @@ router.post('/getmission', auth, missionService.getMission);
 
 router.post('/getstats', auth, statsService.getStats);
 
+<<<<<<< HEAD
 router.post('/getMonthlyDeals', statsService.getMonthlyDeals)
 
 router.post('/getMonthlyMission', statsService.getMonthlyMission)
+=======
+router.post('/getca', auth, statsService.getCa);
+>>>>>>> 1272b403a5b6adcb30d02804eb4be8beb7bebc3a
 
 router.post('/forgot', userService.forgot);
 
