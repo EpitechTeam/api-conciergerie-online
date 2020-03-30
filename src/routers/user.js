@@ -29,6 +29,10 @@ router.post('/getmission', auth, missionService.getMission);
 
 router.post('/getstats', auth, statsService.getStats);
 
+router.post('/getMonthlyDeals', statsService.getMonthlyDeals)
+
+router.post('/getMonthlyMission', statsService.getMonthlyMission)
+
 router.post('/forgot', userService.forgot);
 
 router.post('/reset', userService.reset);
