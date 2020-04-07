@@ -155,6 +155,6 @@ let getCa = async (req, res) => {
 module.exports = {
     getStats,
     getMonthlyDeals,
-    getMonthlyMission
+    getMonthlyMission,
     getCa
 };

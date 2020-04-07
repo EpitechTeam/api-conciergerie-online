@@ -32,13 +32,7 @@ router.post('/getmission', auth, missionService.getMission);
 
 router.post('/getstats', auth, statsService.getStats);
 
-<<<<<<< HEAD
-router.post('/getMonthlyDeals', statsService.getMonthlyDeals)
-
-router.post('/getMonthlyMission', statsService.getMonthlyMission)
-=======
 router.post('/getca', auth, statsService.getCa);
->>>>>>> 1272b403a5b6adcb30d02804eb4be8beb7bebc3a
 
 router.post('/forgot', userService.forgot);
 
